@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Menu</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<h1>🍽️ Our Menu</h1>
+
+<div class="menu-container">
+
+{% for category, items in menu_data.items() %}
+<h2 class="category-title">{{ category }}</h2>
+
+{% for item in items %}
+<div class="menu-item">
+
+    <div class="item-left">
+        <strong>{{ item.name }}</strong>
+    </div>
+
+    <div class="item-right">
+
+        {% if item.variants %}
+        <div class="variant-container">
+            {% for v in item.variants %}
+            <button class="variant-btn"
+                onclick="addToCart('{{ item.name }} ({{ v[0] }})', {{ v[1] }})">
+                {{ v[0] }} – ₹{{ v[1] }}
+            </button>
+            {% endfor %}
+        </div>
+        {% else %}
+        <button class="add-btn"
+            onclick="addToCart('{{ item.name }}', {{ item.price }})">
+            Add – ₹{{ item.price }}
+        </button>
+        {% endif %}
+
+    </div>
+</div>
+{% endfor %}
+{% endfor %}
+
+</div>
+
+<a href="/cart" class="link">🛒 View Cart</a>
+
+<div class="flash-container"></div>
+
+<script>
+function addToCart(name, price) {
+    fetch("/add_to_cart_ajax", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ item_name: name, price: price })
+    })
+    .then(res => res.json())
+    .then(data => showToast(data.message));
+}
+
+function showToast(msg) {
+    const box = document.createElement("div");
+    box.className = "flash-message";
+    box.innerText = msg;
+
+    document.querySelector(".flash-container").appendChild(box);
+    setTimeout(() => box.remove(), 3000);
+}
+</script>
+
+</body>
+</html>

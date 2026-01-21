@@ -42,10 +42,13 @@ def init_db():
     cur.execute("""
     CREATE TABLE IF NOT EXISTS orders (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        table_no TEXT,
         items TEXT,
-        total INTEGER
+        total INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
     """)
+
 
     # Categories
     cur.execute("SELECT COUNT(*) FROM categories")
@@ -167,6 +170,9 @@ def index():
 
 @app.route("/menu")
 def menu():
+    table_no = request.args.get("table", "Unknown")
+    session["table_no"] = table_no   # store table number
+
     db = get_db()
     cur = db.cursor()
 
@@ -199,7 +205,12 @@ def menu():
         menu_data[cat[1]] = item_list
 
     db.close()
-    return render_template("menu.html", menu_data=menu_data)
+    return render_template(
+        "menu.html",
+        menu_data=menu_data,
+        table_no=table_no
+    )
+
 
 # ---------- AJAX ADD TO CART ----------
 @app.route("/add_to_cart_ajax", methods=["POST"])
@@ -236,17 +247,52 @@ def remove_item(index):
 @app.route("/confirm_order")
 def confirm_order():
     cart = session.get("cart", [])
+    table_no = session.get("table_no", "Unknown")
+
     total = sum(i["price"] for i in cart)
-    items = ", ".join(i["name"] for i in cart)
+
+    # Build readable food list
+    items = []
+    for i in cart:
+        items.append(i["name"])
+    items_text = ", ".join(items)
 
     db = get_db()
     cur = db.cursor()
-    cur.execute("INSERT INTO orders (items, total) VALUES (?,?)", (items, total))
+    cur.execute(
+        "INSERT INTO orders (table_no, items, total) VALUES (?,?,?)",
+        (table_no, items_text, total)
+    )
     db.commit()
     db.close()
 
     session.pop("cart", None)
     return render_template("success.html", total=total)
+
+@app.route("/kitchen")
+def kitchen():
+    db = get_db()
+    cur = db.cursor()
+
+    cur.execute("""
+        SELECT table_no, items, total, created_at
+        FROM orders
+        ORDER BY created_at DESC
+    """)
+
+    orders = cur.fetchall()
+    db.close()
+
+    return render_template("kitchen.html", orders=orders)
+
+@app.route("/kitchen_count")
+def kitchen_count():
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("SELECT COUNT(*) FROM orders")
+    count = cur.fetchone()[0]
+    db.close()
+    return jsonify({"count": count})
 
 init_db()
 

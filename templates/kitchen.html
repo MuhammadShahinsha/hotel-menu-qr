@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kitchen Dashboard</title>
+
+    <!-- Auto refresh every 5 seconds -->
+    <meta http-equiv="refresh" content="5">
+
+    <style>
+        body {
+            background: #020617;
+            color: white;
+            font-family: Poppins, Arial;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #facc15;
+        }
+
+        .order {
+            background: #0f172a;
+            padding: 18px;
+            margin-bottom: 18px;
+            border-left: 6px solid #22c55e;
+            border-radius: 10px;
+            animation: blink 1s infinite alternate;
+        }
+
+        .table {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #38bdf8;
+        }
+
+        .items {
+            margin-top: 8px;
+            font-size: 1.05rem;
+        }
+
+        .total {
+            margin-top: 8px;
+            font-weight: bold;
+            color: #a7f3d0;
+        }
+
+        .time {
+            margin-top: 6px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+
+        @keyframes blink {
+            from { background: #0f172a; }
+            to { background: #14532d; }
+        }
+    </style>
+    <script>
+  setInterval(() => {
+    window.location.reload();
+  }, 5000); // refresh every 5 seconds
+</script>
+
+</head>
+
+<body>
+
+<h1>🍳 Kitchen Orders</h1>
+
+<!-- 🔔 Alert sound -->
+<audio id="alertSound">
+  <source src="/static/mixkit-bell-notification-933.wav" type="audio/mpeg">
+</audio>
+
+<script>
+  let lastOrderCount = {{ orders|length }};
+
+  setInterval(() => {
+    fetch("/kitchen_count")
+      .then(r => r.json())
+      .then(data => {
+        if (data.count > lastOrderCount) {
+          document.getElementById("alertSound").play();
+          lastOrderCount = data.count;
+          window.location.reload();
+        }
+      });
+  }, 5000);
+</script>
+
+
+{% for o in orders %}
+<div class="order">
+    <div class="table">🪑 Table {{ o[0] }}</div>
+    <div class="items">🍽 {{ o[1] }}</div>
+    <div class="total">💰 Total: ₹{{ o[2] }}</div>
+    <div class="time">⏰ {{ o[3] }}</div>
+</div>
+{% endfor %}
+
+</body>
+</html>

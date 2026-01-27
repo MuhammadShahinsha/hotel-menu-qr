@@ -104,18 +104,72 @@ h1 {
 }
 
 /* =========================
+   TOAST POPUP (TOP RIGHT)
+========================= */
+/* ===== FORCE TOAST POSITION (RENDER FIX) ===== */
+.flash-container {
+    position: fixed !important;
+    top: 25px !important;
+    right: 25px !important;
+    z-index: 9999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+
+
+.flash-message {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #020617;
+    padding: 16px 22px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    box-shadow: 0 12px 30px rgba(34,197,94,0.45);
+    animation: toastSlide 3s ease forwards;
+}
+
+/* Slide + fade animation */
+@keyframes toastSlide {
+    0%   { opacity: 0; transform: translateX(60px); }
+    10%  { opacity: 1; transform: translateX(0); }
+    85%  { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(60px); }
+}
+
+/* =========================
    BIG VIEW CART BUTTON
 ========================= */
-.view-cart {
-    display: inline-block;
+.view-cart-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+
     margin: 50px auto 30px;
     padding: 20px 46px;
-    font-size: 1.6rem;
+
+    font-size: 1.7rem;
     font-weight: 900;
+
     color: #020617;
     background: linear-gradient(135deg, #38bdf8, #22c55e);
+
     border-radius: 999px;
     text-decoration: none;
+
+    box-shadow: 0 14px 36px rgba(56,189,248,0.45);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.view-cart-link:hover {
+    transform: scale(1.12);
+    box-shadow: 0 18px 46px rgba(56,189,248,0.65);
+}
+
+/* Bigger cart icon */
+.view-cart-link span.icon {
+    font-size: 2rem;
 }
 
 /* =========================

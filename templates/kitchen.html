@@ -3,9 +3,6 @@
 <head>
     <title>Kitchen Dashboard</title>
 
-    <!-- Auto refresh every 5 seconds -->
-    <meta http-equiv="refresh" content="5">
-
     <style>
         body {
             background: #020617;
@@ -24,7 +21,6 @@
             margin-bottom: 18px;
             border-left: 6px solid #22c55e;
             border-radius: 10px;
-            animation: blink 1s infinite alternate;
         }
 
         .table {
@@ -49,45 +45,41 @@
             font-size: 0.85rem;
             color: #94a3b8;
         }
-
-        @keyframes blink {
-            from { background: #0f172a; }
-            to { background: #14532d; }
-        }
     </style>
-    <script>
-  setInterval(() => {
-    window.location.reload();
-  }, 5000); // refresh every 5 seconds
-</script>
-
 </head>
 
 <body>
 
 <h1>🍳 Kitchen Orders</h1>
 
-<!-- 🔔 Alert sound -->
-<audio id="alertSound">
-  <source src="/static/mixkit-bell-notification-933.wav" type="audio/mpeg">
+<!-- 🔔 Alert Sound -->
+<audio id="alertSound" preload="auto">
+    <source src="/static/sound/order.mp3.wav" type="audio/wav">
 </audio>
 
+
 <script>
-  let lastOrderCount = {{ orders|length }};
+    let lastOrderCount = {{ orders|length }};
 
-  setInterval(() => {
-    fetch("/kitchen_count")
-      .then(r => r.json())
-      .then(data => {
-        if (data.count > lastOrderCount) {
-          document.getElementById("alertSound").play();
-          lastOrderCount = data.count;
-          window.location.reload();
-        }
-      });
-  }, 5000);
+    setInterval(() => {
+        fetch("/kitchen_count")
+            .then(res => res.json())
+            .then(data => {
+                if (data.count > lastOrderCount) {
+                    const sound = document.getElementById("alertSound");
+                    sound.currentTime = 0;
+                    sound.play();
+
+                    lastOrderCount = data.count;
+
+                    // ⏳ give sound time, then refresh
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
+                }
+            });
+    }, 5000); // check every 5 seconds
 </script>
-
 
 {% for o in orders %}
 <div class="order">

@@ -57,28 +57,56 @@
     <source src="/static/sound/order.mp3.wav" type="audio/wav">
 </audio>
 
+<button id="enableSound" style="
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    background: #22c55e;
+    color: #020617;
+    cursor: pointer;
+    z-index: 9999;
+">
+🔊 Enable Sound
+</button>
+
+<audio id="alertSound" preload="auto">
+    <source src="/static/sound/order.mp3.wav" type="audio/wav">
+</audio>
 
 <script>
     let lastOrderCount = {{ orders|length }};
+    let soundEnabled = false;
+
+    document.getElementById("enableSound").addEventListener("click", () => {
+        const sound = document.getElementById("alertSound");
+        sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+            soundEnabled = true;
+            document.getElementById("enableSound").innerText = "✅ Sound Enabled";
+        });
+    });
 
     setInterval(() => {
         fetch("/kitchen_count")
             .then(res => res.json())
             .then(data => {
                 if (data.count > lastOrderCount) {
-                    const sound = document.getElementById("alertSound");
-                    sound.currentTime = 0;
-                    sound.play();
-
+                    if (soundEnabled) {
+                        const sound = document.getElementById("alertSound");
+                        sound.currentTime = 0;
+                        sound.play();
+                    }
                     lastOrderCount = data.count;
-
-                    // ⏳ give sound time, then refresh
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1200);
+                    window.location.reload();
                 }
             });
-    }, 5000); // check every 5 seconds
+    }, 5000);
 </script>
 
 {% for o in orders %}

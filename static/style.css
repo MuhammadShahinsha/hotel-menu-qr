@@ -293,3 +293,14 @@ h1 {
     from { opacity: 0 }
     to { opacity: 1 }
 }
+
+.order .items ol {
+    margin-top: 8px;
+    margin-left: 22px;
+}
+
+.order .items li {
+    margin-bottom: 6px;
+    font-size: 1.25rem;
+}
+

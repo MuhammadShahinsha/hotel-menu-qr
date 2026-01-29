@@ -84,7 +84,14 @@
 {% for o in orders %}
 <div class="order">
     <div class="table">🪑 Table {{ o[0] }}</div>
-    <div class="items">🍽 {{ o[1] }}</div>
+    <div class="items">
+    🍽
+    <ol>
+        {% for item in o[1].split(',') %}
+            <li>{{ item.strip() }}</li>
+        {% endfor %}
+    </ol>
+    </div>
     <div class="total">💰 Total: ₹{{ o[2] }}</div>
     <div class="time">⏰ {{ o[3] }}</div>
 </div>
